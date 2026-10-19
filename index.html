@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoFM Agriculture Benchmark</title>
+<meta name="description" content="Reproduce the GeoFM agriculture benchmark in a few commands.">
+<style>
+  :root {
+    --bg: #fdf8e6;
+    --card: #ffffff;
+    --text: #25344b;
+    --muted: #617187;
+    --accent: #303b93;
+    --border: #dfe3ea;
+    --code-bg: #f1f3f8;
+    --button: #303b93;
+    --button-text: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141821;
+      --card: #1d2230;
+      --text: #e3e7ef;
+      --muted: #9aa5b8;
+      --accent: #9fb0ff;
+      --border: #2e3547;
+      --code-bg: #262c3d;
+      --button: #9fb0ff;
+      --button-text: #141821;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141821;
+    --card: #1d2230;
+    --text: #e3e7ef;
+    --muted: #9aa5b8;
+    --accent: #9fb0ff;
+    --border: #2e3547;
+    --code-bg: #262c3d;
+    --button: #9fb0ff;
+    --button-text: #141821;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { color: var(--accent); font-size: 1.6rem; line-height: 1.25; margin: 0 0 6px; }
+  .needs { color: var(--muted); font-weight: 600; margin: 0 0 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  h2 { font-size: 1.05rem; margin: 0 0 4px; color: var(--accent); }
+  .step { color: var(--muted); margin-right: 6px; }
+  .why { color: var(--muted); font-size: 0.92rem; margin: 0 0 10px; }
+  pre {
+    margin: 0;
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 12px;
+    overflow-x: auto;
+    font: 0.82rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .copy {
+    display: block;
+    margin-top: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .details {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-weight: 600;
+    background: var(--button);
+    color: var(--button-text);
+    margin-top: 20px;
+  }
+  footer { color: var(--muted); font-size: 0.85rem; margin-top: 24px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Reproduce the benchmark in a few commands</h1>
+  <p class="needs">Linux + NVIDIA GPU</p>
+
+  <section class="card">
+    <h2><span class="step">1</span>Get the code</h2>
+    <p class="why">Downloads the benchmark scripts.</p>
+    <div class="code"><pre><code>git clone https://github.com/Sanmay-Das/Benchmarking-GeoFMs-for-Agriculture-Applications
+cd Benchmarking-GeoFMs-for-Agriculture-Applications</code></pre></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">2</span>Set up</h2>
+    <p class="why">Gets Python 3.9 and builds one environment per model (about 15 minutes).</p>
+    <div class="code"><pre><code>curl -LsSf https://astral.sh/uv/install.sh | sh
+~/.local/bin/uv python install 3.9
+GFM_PYTHON=$(~/.local/bin/uv python find 3.9) ./setup.sh</code></pre></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">3</span>Get the data and weights</h2>
+    <p class="why">Downloads only what one experiment needs from Hugging Face.</p>
+    <div class="code"><pre><code>venvs/prithvi/bin/python scripts/fetch.py --task cd --model prithvi --state minnesota</code></pre></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">4</span>Run</h2>
+    <p class="why">Runs the model and prints the scores.</p>
+    <div class="code"><pre><code>./reproduce.sh --task cd --model prithvi --state minnesota</code></pre></div>
+  </section>
+
+  <a class="details" href="https://github.com/Sanmay-Das/Benchmarking-GeoFMs-for-Agriculture-Applications#readme">For full details: GitHub repository</a>
+
+  <footer>Zhuocheng Shang, Sanmay Das, Ahmed Eldawy &middot; University of California, Riverside &middot; SIGSPATIAL 2026</footer>
+</main>
+<script>
+  // A copy button under each command block. Clipboard access can be refused
+  // (non-HTTPS preview, old browser), so fall back to selecting the text.
+  document.querySelectorAll(".code").forEach(function (box) {
+    var btn = document.createElement("button");
+    btn.className = "copy";
+    btn.type = "button";
+    btn.textContent = "Copy";
+    btn.addEventListener("click", function () {
+      var text = box.querySelector("code").textContent;
+      var done = function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1500);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(done, function () { select(box); });
+      } else {
+        select(box);
+      }
+    });
+    box.appendChild(btn);
+  });
+  function select(box) {
+    var range = document.createRange();
+    range.selectNodeContents(box.querySelector("code"));
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+</script>
+</body>
+</html>
