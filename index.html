@@ -48,7 +48,7 @@
     color: var(--text);
     font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   }
-  main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+  main { max-width: 1080px; margin: 0 auto; padding: 24px 16px 48px; }
   h1 { color: var(--accent); font-size: 1.6rem; line-height: 1.25; margin: 0 0 6px; }
   .needs { color: var(--muted); font-weight: 600; margin: 0 0 20px; }
   .card {
@@ -58,9 +58,9 @@
     padding: 16px;
     margin-bottom: 14px;
   }
-  h2 { font-size: 1.05rem; margin: 0 0 4px; color: var(--accent); }
+  h2 { font-size: 1.15em; margin: 0 0 4px; color: var(--accent); }
   .step { color: var(--muted); margin-right: 6px; }
-  .why { color: var(--muted); font-size: 0.92rem; margin: 0 0 10px; }
+  .why { color: var(--muted); font-size: 0.92em; margin: 0 0 10px; }
   pre {
     margin: 0;
     background: var(--code-bg);
@@ -69,6 +69,7 @@
     overflow-x: auto;
     font: 0.82rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
+  .ln { display: block; }
   .copy {
     display: block;
     margin-top: 8px;
@@ -78,7 +79,7 @@
     border-radius: 8px;
     padding: 6px 12px;
     font: inherit;
-    font-size: 0.85rem;
+    font-size: 0.85em;
     cursor: pointer;
   }
   .details {
@@ -92,7 +93,18 @@
     color: var(--button-text);
     margin-top: 20px;
   }
-  footer { color: var(--muted); font-size: 0.85rem; margin-top: 24px; }
+  footer { color: var(--muted); font-size: 0.85em; margin-top: 24px; }
+  /* One fluid layout for every screen: the side margin is always 5% of the
+     width, and type and spacing scale smoothly between phone and desktop
+     sizes instead of jumping at a breakpoint. Commands wrap rather than
+     scroll, indented under their first line; Copy still copies them whole. */
+  body { font-size: clamp(16px, 0.75rem + 0.5vw, 21px); }
+  main { max-width: none; padding: clamp(24px, 4vw, 56px) 5vw clamp(40px, 5vw, 72px); }
+  h1 { font-size: clamp(1.6rem, 1.1rem + 2vw, 2.6rem); }
+  .card { padding: clamp(16px, 2vw, 28px) clamp(16px, 2.5vw, 32px); margin-bottom: clamp(14px, 1.5vw, 20px); }
+  pre { font-size: calc(0.76em + 0.12vw); white-space: pre-wrap; overflow-wrap: anywhere; }
+  .ln { padding-left: 1.2em; text-indent: -1.2em; }
+  .details { display: block; max-width: 420px; margin-left: auto; margin-right: auto; }
 </style>
 </head>
 <body>
@@ -127,7 +139,7 @@ GFM_PYTHON=$(~/.local/bin/uv python find 3.9) ./setup.sh</code></pre></div>
     <div class="code"><pre><code>./reproduce.sh --task cd --model prithvi --state minnesota</code></pre></div>
   </section>
 
-  <a class="details" href="https://github.com/Sanmay-Das/Benchmarking-GeoFMs-for-Agriculture-Applications#readme">For full details: GitHub repository</a>
+  <a class="details" href="https://huggingface.co/datasets/sanmay4119/geofm-agriculture-benchmark">For full details: Hugging Face</a>
 
   <footer>Zhuocheng Shang, Sanmay Das, Ahmed Eldawy &middot; University of California, Riverside &middot; SIGSPATIAL 2026</footer>
 </main>
@@ -135,12 +147,24 @@ GFM_PYTHON=$(~/.local/bin/uv python find 3.9) ./setup.sh</code></pre></div>
   // A copy button under each command block. Clipboard access can be refused
   // (non-HTTPS preview, old browser), so fall back to selecting the text.
   document.querySelectorAll(".code").forEach(function (box) {
+    // Keep the exact command text for copying, then put each command in its
+    // own block so a wrapped command indents under itself on phones.
+    var code = box.querySelector("code");
+    var original = code.textContent;
+    code.textContent = "";
+    original.split("\n").forEach(function (line) {
+      var span = document.createElement("span");
+      span.className = "ln";
+      span.textContent = line;
+      code.appendChild(span);
+    });
+    code.dataset.copy = original;
     var btn = document.createElement("button");
     btn.className = "copy";
     btn.type = "button";
     btn.textContent = "Copy";
     btn.addEventListener("click", function () {
-      var text = box.querySelector("code").textContent;
+      var text = box.querySelector("code").dataset.copy;
       var done = function () {
         btn.textContent = "Copied";
         setTimeout(function () { btn.textContent = "Copy"; }, 1500);
